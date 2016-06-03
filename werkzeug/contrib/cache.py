@@ -105,6 +105,8 @@ class BaseCache(object):
     def _normalize_timeout(self, timeout):
         if timeout is None:
             timeout = self.default_timeout
+        if callable(timeout):
+            timeout = timeout()
         return timeout
 
     def get(self, key):
@@ -157,7 +159,8 @@ class BaseCache(object):
         :param value: the value for the key
         :param timeout: the cache timeout for the key in seconds (if not
                         specified, it uses the default timeout). A timeout of
-                        0 idicates that the cache never expires.
+                        0 idicates that the cache never expires. A callable
+                        that returns an int in seconds is also acceptable.
         :returns: ``True`` if key has been updated, ``False`` for backend
                   errors. Pickling errors, however, will raise a subclass of
                   ``pickle.PickleError``.
@@ -173,7 +176,8 @@ class BaseCache(object):
         :param value: the value for the key
         :param timeout: the cache timeout for the key in seconds (if not
                         specified, it uses the default timeout). A timeout of
-                        0 idicates that the cache never expires.
+                        0 idicates that the cache never expires. A callable
+                        that returns an int in seconds is also acceptable.
         :returns: Same as :meth:`set`, but also ``False`` for already
                   existing keys.
         :rtype: boolean
@@ -186,7 +190,8 @@ class BaseCache(object):
         :param mapping: a mapping with the keys/values to set.
         :param timeout: the cache timeout for the key in seconds (if not
                         specified, it uses the default timeout). A timeout of
-                        0 idicates that the cache never expires.
+                        0 idicates that the cache never expires. A callable
+                        that returns an int in seconds is also acceptable.
         :returns: Whether all given keys have been set.
         :rtype: boolean
         """

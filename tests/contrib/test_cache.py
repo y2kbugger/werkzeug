@@ -139,6 +139,23 @@ class CacheTests(object):
         fast_sleep(timeout + 5)
         assert c.get('foo') is None
 
+    def test_generic_timeout_callable(self, c, fast_sleep):
+        # if the config is loaded at runtime, we need to fetch the
+        # value only then
+        config = {
+            'cache_timeout': 5
+        }
+
+        def timeout(cache_timeout):
+            return config.get(cache_timeout)
+
+        c.set('foo', 'bar', lambda: timeout('cache_timeout'))
+        assert c.get('foo') == 'bar'
+        # sleep a bit longer than max timeout to ensure there are no
+        # race conditions
+        fast_sleep(10)
+        assert c.get('foo') is None
+
     def test_generic_has(self, c):
         assert c.has('foo') in (False, 0)
         assert c.has('spam') in (False, 0)
