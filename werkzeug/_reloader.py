@@ -49,18 +49,19 @@ def _find_observable_paths(extra_files=None):
 
     return _find_common_roots(rv)
 
-
 def _get_executable():
     """Returns the executable. This contains a workaround for windows
     if the executable is incorrectly reported to not have the .exe
     extension which can cause bugs on reloading.
     """
-    rv = sys.executable
-    if os.name == 'NT' and not os.path.exists(rv) and \
-       os.path.exists(rv + '.exe'):
-        return rv + '.exe'
-    return rv
-
+    newargs = list()
+    for rv in sys.argv:
+        if os.name.lower() == 'nt' and not os.path.exists(rv) and \
+           os.path.exists(rv + '.exe'):
+            newargs.append(rv + '.exe')
+        else:
+            newargs.append(rv)
+    return newargs
 
 def _find_common_roots(paths):
     """Out of some paths it finds the common roots that need monitoring."""
@@ -105,7 +106,7 @@ class ReloaderLoop(object):
         """
         while 1:
             _log('info', ' * Restarting with %s' % self.name)
-            args = [_get_executable()] + sys.argv
+            args = [sys.executable] + _get_executable()
             new_environ = os.environ.copy()
             new_environ['WERKZEUG_RUN_MAIN'] = 'true'
 
